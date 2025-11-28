@@ -103,19 +103,10 @@ DB_USER=$DB_USER
 DB_PASSWD=$DB_PASS
 
 # ROMM Configuration
-ROMM_HOST=0.0.0.0
-ROMM_PORT=8080
-ROMM_BASE_PATH=/romm
 ROMM_AUTH_SECRET_KEY=$(openssl rand -base64 32)
+ROMM_BASE_PATH=/romm
 
-# Storage Paths
-ROMM_DB_DRIVER=mariadb
-LIBRARY_BASE_PATH=/opt/romm_storage/library
-RESOURCES_BASE_PATH=/opt/romm_storage/resources
-REDIS_DATA_DIR=/opt/romm_storage/redis-data
-
-# Authentication
-ENABLE_EXPERIMENTAL_REDIS=false
+# Optional Configuration
 DISABLE_CSRF_PROTECTION=false
 EOF
 
