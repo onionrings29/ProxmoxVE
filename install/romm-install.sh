@@ -116,7 +116,7 @@ Type=simple
 User=root
 WorkingDirectory=/opt/romm
 EnvironmentFile=/opt/romm/.env
-ExecStart=/opt/romm/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8080
+ExecStart=/opt/romm/.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8080
 Restart=on-failure
 RestartSec=5
 
