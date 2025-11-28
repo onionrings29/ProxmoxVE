@@ -114,9 +114,9 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/romm
+WorkingDirectory=/opt/romm/backend
 EnvironmentFile=/opt/romm/.env
-ExecStart=/opt/romm/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8080
+ExecStart=/opt/romm/.venv/bin/python main.py
 Restart=on-failure
 RestartSec=5
 
