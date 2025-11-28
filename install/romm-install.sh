@@ -39,7 +39,7 @@ $STD apt-get install -y \
   libncursesw5-dev
 msg_ok "Installed Dependencies"
 
-NODE_VERSION="18.20.8" setup_nodejs
+NODE_VERSION="18" setup_nodejs
 setup_uv
 
 msg_info "Building RAHasher (for RetroAchievements)"
