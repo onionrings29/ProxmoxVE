@@ -20,6 +20,7 @@ $STD apt-get install -y \
   gcc \
   g++ \
   mariadb-server \
+  redis-server \
   libmariadb3 \
   libmariadb-dev \
   libpq-dev \
@@ -39,6 +40,10 @@ $STD apt-get install -y \
   libncurses5-dev \
   libncursesw5-dev
 msg_ok "Installed Dependencies"
+
+msg_info "Starting Redis Server"
+systemctl enable -q --now redis-server
+msg_ok "Started Redis Server"
 
 msg_info "Setting up MariaDB Database"
 DB_NAME=romm
@@ -113,11 +118,20 @@ EOF
 chmod 600 /opt/romm/.env
 msg_ok "Created Environment Configuration"
 
-msg_info "Creating Systemd Service"
+msg_info "Creating Frontend Symlinks"
+mkdir -p /opt/romm/frontend/assets/romm
+ln -sf /opt/romm_storage/resources /opt/romm/frontend/assets/romm/resources
+ln -sf /opt/romm_storage/library /opt/romm/frontend/assets/romm/assets
+msg_ok "Created Frontend Symlinks"
+
+msg_info "Creating Systemd Services"
+
+# Main ROMM Backend Service
 cat <<EOF >/etc/systemd/system/romm.service
 [Unit]
-Description=ROMM ROM Manager
-After=network.target
+Description=ROMM ROM Manager - Backend
+After=network.target redis-server.service mariadb.service
+Wants=romm-rq-scheduler.service romm-rq-worker.service
 
 [Service]
 Type=simple
@@ -126,7 +140,7 @@ WorkingDirectory=/opt/romm/backend
 EnvironmentFile=/opt/romm/.env
 Environment="DEV_HOST=0.0.0.0"
 Environment="DEV_PORT=8080"
-ExecStart=/opt/romm/.venv/bin/python main.py
+ExecStart=/opt/romm/.venv/bin/uv run python main.py
 Restart=on-failure
 RestartSec=5
 
@@ -134,8 +148,51 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-systemctl enable -q --now romm
-msg_ok "Created Systemd Service"
+# RQ Scheduler Service (for scheduled tasks)
+cat <<EOF >/etc/systemd/system/romm-rq-scheduler.service
+[Unit]
+Description=ROMM RQ Scheduler
+After=network.target redis-server.service
+Requires=redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/romm/backend
+EnvironmentFile=/opt/romm/.env
+Environment="RQ_REDIS_HOST=127.0.0.1"
+Environment="RQ_REDIS_PORT=6379"
+ExecStart=/opt/romm/.venv/bin/rqscheduler --path /opt/romm/backend --pid /tmp/rq_scheduler.pid
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# RQ Worker Service (for background jobs)
+cat <<EOF >/etc/systemd/system/romm-rq-worker.service
+[Unit]
+Description=ROMM RQ Worker
+After=network.target redis-server.service
+Requires=redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/romm/backend
+EnvironmentFile=/opt/romm/.env
+Environment="PYTHONPATH=/opt/romm/backend"
+ExecStart=/opt/romm/.venv/bin/rq worker --path /opt/romm/backend --pid /tmp/rq_worker.pid --url redis://127.0.0.1:6379/0 high default low
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable -q --now romm romm-rq-scheduler romm-rq-worker
+msg_ok "Created Systemd Services"
 
 motd_ssh
 customize
