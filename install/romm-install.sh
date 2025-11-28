@@ -90,6 +90,7 @@ DB_PASSWD=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
 ROMM_HOST=0.0.0.0
 ROMM_PORT=8080
 ROMM_BASE_PATH=/romm
+ROMM_AUTH_SECRET_KEY=$(openssl rand -base64 32)
 
 # Storage Paths
 ROMM_DB_DRIVER=sqlite
