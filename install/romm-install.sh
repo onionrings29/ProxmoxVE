@@ -19,6 +19,7 @@ $STD apt-get install -y \
   make \
   gcc \
   g++ \
+  mariadb-server \
   libmariadb3 \
   libmariadb-dev \
   libpq-dev \
@@ -38,6 +39,21 @@ $STD apt-get install -y \
   libncurses5-dev \
   libncursesw5-dev
 msg_ok "Installed Dependencies"
+
+msg_info "Setting up MariaDB Database"
+DB_NAME=romm
+DB_USER=romm_user
+DB_PASS=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
+$STD mysql -u root -e "CREATE DATABASE $DB_NAME;"
+$STD mysql -u root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
+$STD mysql -u root -e "GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
+{
+  echo "ROMM Database Credentials"
+  echo "Database: $DB_NAME"
+  echo "Username: $DB_USER"
+  echo "Password: $DB_PASS"
+} >>~/romm.creds
+msg_ok "Set up MariaDB Database"
 
 NODE_VERSION="18" setup_nodejs
 setup_uv
@@ -82,23 +98,15 @@ mkdir -p /opt/romm_storage/redis-data
 cat <<EOF >/opt/romm/.env
 # Database Configuration
 DB_HOST=localhost
-DB_NAME=romm
-DB_USER=romm_user
-DB_PASSWD=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
+DB_NAME=$DB_NAME
+DB_USER=$DB_USER
+DB_PASSWD=$DB_PASS
 
 # ROMM Configuration
-ROMM_HOST=0.0.0.0
-ROMM_PORT=8080
+ROMM_AUTH_SECRET_KEY=$(openssl rand -base64 32)
 ROMM_BASE_PATH=/romm
 
-# Storage Paths
-ROMM_DB_DRIVER=sqlite
-LIBRARY_BASE_PATH=/opt/romm_storage/library
-RESOURCES_BASE_PATH=/opt/romm_storage/resources
-REDIS_DATA_DIR=/opt/romm_storage/redis-data
-
-# Authentication
-ENABLE_EXPERIMENTAL_REDIS=false
+# Optional Configuration
 DISABLE_CSRF_PROTECTION=false
 EOF
 
