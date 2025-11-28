@@ -124,6 +124,8 @@ Type=simple
 User=root
 WorkingDirectory=/opt/romm/backend
 EnvironmentFile=/opt/romm/.env
+Environment="DEV_HOST=0.0.0.0"
+Environment="DEV_PORT=8080"
 ExecStart=/opt/romm/.venv/bin/python main.py
 Restart=on-failure
 RestartSec=5
