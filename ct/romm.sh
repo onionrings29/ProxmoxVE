@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-
-# For testing from fork/branch - set these environment variables before sourcing build.func
-export INSTALL_REPO="${INSTALL_REPO:-onionrings29/ProxmoxVE}"
-export INSTALL_BRANCH="${INSTALL_BRANCH:-main}"
-
-# Source build.func from the same repo/branch for testing
-source <(curl -fsSL https://raw.githubusercontent.com/${INSTALL_REPO}/${INSTALL_BRANCH}/misc/build.func)
-
+source <(curl -fsSL https://raw.githubusercontent.com/onionrings29/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: onionrings29
 # License: MIT | https://github.com/onionrings29/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/rommapp/romm
 
 APP="ROMM"
-var_tags="${var_tags:-gaming;media;roms}"
+var_tags="${var_tags:-gaming;media}"
 var_cpu="${var_cpu:-4}"
 var_ram="${var_ram:-4096}"
 var_disk="${var_disk:-10}"

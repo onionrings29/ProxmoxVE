@@ -34,7 +34,7 @@ It looks like you are referencing a **container creation issue with a Debian 13 
 
 We receive many similar reports about this, and it’s not related to the scripts themselves but to **a Proxmox base template bug**.
 
-Please refer to [discussion #8126](https://github.com/community-scripts/ProxmoxVE/discussions/8126) for details.  
+Please refer to [discussion #8126](https://github.com/onionrings29/ProxmoxVE/discussions/8126) for details.  
 If your issue persists after following the guidance there, feel free to reopen this issue.
 
 _This issue was automatically closed by a bot._`;
