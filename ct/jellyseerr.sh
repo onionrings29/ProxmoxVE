@@ -41,7 +41,7 @@ function update_script() {
   fi
 
   cd /opt/jellyseerr
-  git fetch --tags
+  git fetch --tags --force
   git reset --hard preview-OIDC
 
   pnpm_current=$(pnpm --version 2>/dev/null)
