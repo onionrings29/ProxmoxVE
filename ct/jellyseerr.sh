@@ -41,7 +41,8 @@ function update_script() {
   fi
 
   cd /opt/jellyseerr
-  output=$(git pull --no-rebase)
+  git fetch --tags
+  git reset --hard preview-OIDC
 
   pnpm_current=$(pnpm --version 2>/dev/null)
   pnpm_desired=$(grep -Po '"pnpm":\s*"\K[^"]+' /opt/jellyseerr/package.json)
